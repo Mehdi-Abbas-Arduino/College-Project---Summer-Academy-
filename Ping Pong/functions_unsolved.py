@@ -244,14 +244,9 @@ def validate_name_constraints(user_input):
     validate_name_constraints("Alice1")  -> False  (contains digit)
     """
     # TODO: replace this stub with your implementation
-    while user_input < 2 and user_input > 16:
-        user_input = input("Enter in the range given = ")
-        
-    name = user_input.split(' ')
-    for i in range(len(name)):
-        if name[i].isalnum():
-            pass
-
+    if len(user_input) < 2 and len(user_input) > 16:
+        return False
+    return user_input.replace(" ", "").isalpha()
 
 def generate_seed_hash(player_name, score):
     """
@@ -278,7 +273,13 @@ def generate_seed_hash(player_name, score):
         ord('A')=65, ord('B')=66 -> sum=131 -> 131*10=1310 -> "1310"
     """
     # TODO: replace this stub with your implementation
-    return "0"
+    sum = 0
+    for i in player_name:
+        char = ord(i)
+        sum += char
+    ans = sum * score
+    ans = str(ans)
+    return ans 
 
 
 def find_longest_volley(game_history):
@@ -300,8 +301,17 @@ def find_longest_volley(game_history):
     find_longest_volley(["MISS", "MISS"])                       -> 0
     """
     # TODO: replace this stub with your implementation
-    return 0
+    count = 0
+    longest = 0 
+    for event in game_history:
+        if event == "HIT" or event == "WALL":
+            count += 1
+            if count > longest:
+                longest = count
+        else:
+            count = 0
 
+    return longest
 
 def calculate_weighted_score(score_events):
     """
@@ -327,9 +337,12 @@ def calculate_weighted_score(score_events):
         -> 10*0 + 10*1 + 5*2 = 0 + 10 + 10 = 20
     """
     # TODO: replace this stub with your implementation
-    return 0
-
-
+    sum = 0
+    for i in range(len(score_events)):
+        product = score_events[i] * i
+        sum += product
+        
+    return sum
 def determine_winning_player(leaderboard):
     """
     Find the best player in a leaderboard dictionary.
@@ -355,7 +368,26 @@ def determine_winning_player(leaderboard):
     # TODO: replace this stub with your implementation
     if len(leaderboard) == 0:
         return None
-    return next(iter(leaderboard))
+
+    highest = -1
+    best_misses = 0
+    winner = None
+
+    for player in leaderboard:
+        score = leaderboard[player]["score"]
+        misses = leaderboard[player]["misses"]
+
+        if score > highest:
+            highest = score
+            best_misses = misses
+            winner = player
+
+        elif score == highest:
+            if misses < best_misses:
+                best_misses = misses
+                winner = player
+
+    return winner
 
 
 def calculate_game_analytics(performance_log):
