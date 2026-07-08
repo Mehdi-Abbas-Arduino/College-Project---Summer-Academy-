@@ -122,7 +122,21 @@ def clamp_paddle_movement(current_y, target_y, max_speed, screen_h, paddle_h):
     clamp_paddle_movement(300, 200, 10, 520, 100) -> 290
     """
     # TODO: replace this stub with your implementation
-    return int(current_y)
+    difference = target_y - current_y
+
+    if difference > max_speed:
+        new_y = current_y + max_speed
+    elif difference < -max_speed:
+        new_y = current_y - max_speed
+    else:
+        new_y = target_y
+
+    if new_y < 0:
+        new_y = 0
+    elif new_y > screen_h - paddle_h:
+        new_y = screen_h - paddle_h
+
+    return int(new_y)
 
 
 def get_quadrant_occupancy(ball_x, ball_y, screen_w, screen_h):
@@ -152,7 +166,20 @@ def get_quadrant_occupancy(ball_x, ball_y, screen_w, screen_h):
     get_quadrant_occupancy(600, 400, 800, 600) -> 4   (bottom-right)
     """
     # TODO: replace this stub with your implementation
-    return 1
+    ball_x, ball_y = float(ball_x), float(ball_y)
+    screen_w, screen_h = int(screen_w), int(screen_h)
+
+    center_x = screen_w / 2
+    center_y = screen_h / 2
+
+    if ball_x <= center_x and ball_y <= center_y:
+        return 1
+    elif ball_x > center_x and ball_y <= center_y:
+        return 2
+    elif ball_x <= center_x and ball_y > center_y:
+        return 3
+    else:
+        return 4
 
 
 def shorten_player_name(full_name):
@@ -412,7 +439,23 @@ def calculate_game_analytics(performance_log):
     calculate_game_analytics(log) -> {"hit_count": 2, "average_speed": 7.0}
     """
     # TODO: replace this stub with your implementation
-    return {"hit_count": 0, "average_speed": 0}
+    hit_count = 0
+    total_speed = 0
+
+    for event in performance_log:
+        if event["type"] == "paddle_hit":
+            hit_count += 1
+            total_speed += event["speed"]
+
+    if hit_count == 0:
+        average_speed = 0
+    else:
+        average_speed = total_speed / hit_count
+
+    return {
+        "hit_count": hit_count,
+        "average_speed": average_speed
+    }
 
 
 def get_score_milestone_multipliers(scoreboard, milestone_list):
@@ -442,5 +485,12 @@ def get_score_milestone_multipliers(scoreboard, milestone_list):
         -> speed_multiplier = 1.0 + 2 * 0.15 = 1.30
     """
     # TODO: replace this stub with your implementation
-    scoreboard["speed_multiplier"] = 1.0
+    highest_index = -1
+
+    for i in range(len(milestone_list)):
+        if scoreboard["score"] >= milestone_list[i]:
+            highest_index = i
+
+    scoreboard["speed_multiplier"] = 1.0 + (highest_index + 1) * 0.15
+
     return scoreboard
