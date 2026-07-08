@@ -140,8 +140,6 @@ def clamp_paddle_movement(current_y, target_y, max_speed, screen_h, paddle_h):
 
 
 def get_quadrant_occupancy(ball_x, ball_y, screen_w, screen_h):
-    ball_x,ball_y = float(ball_x),float(ball_y)
-    screen_w,screen_h = int(screen_w),int(screen_h)
     """
     Return which quadrant of the screen the ball currently occupies.
 

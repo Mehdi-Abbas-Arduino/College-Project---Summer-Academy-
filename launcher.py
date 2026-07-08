@@ -9,7 +9,7 @@ blocks the others.
 Run with:  python launcher.py
 """
 
-import os
+import os   
 import sys
 import subprocess
 import pygame
