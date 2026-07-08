@@ -7,6 +7,7 @@ can import and run this file without crashing.
 
 
 def reflect_vector(dx, dy, surface):
+    surface = surface.upper()
     """
     Reflect a ball's velocity vector depending on which surface it hit.
 
@@ -28,10 +29,28 @@ def reflect_vector(dx, dy, surface):
     reflect_vector(3, -2, "PADDLE")  -> [-3, -2]
     """
     # TODO: replace this stub with your implementation
+    if surface == "TOP" or surface == 'BOTTOM':
+        if surface == "TOP":
+            if dy < 0:
+                dy = -(dy)
+        else:
+            if dy > 0:
+                dy = -dy
+    elif surface == 'PADDLE' or surface == 'BACK_WALL':
+        if surface == 'PADDLE':
+            if dx > 0:
+                dx = -dx
+        else:
+            if dx < 0:
+                dx = -(dx)
+            
     return [dx, dy]
 
 
 def is_out_of_bounds(ball_x, ball_y, radius, screen_w, screen_h):
+    ball_x , ball_y = float(ball_x) , float(ball_y)
+    radius = float(radius)
+    screen_h,screen_w = int(screen_h) , int(screen_w)
     """
     Determine whether the ball has left the screen, accounting for its radius.
 
@@ -57,8 +76,21 @@ def is_out_of_bounds(ball_x, ball_y, radius, screen_w, screen_h):
     is_out_of_bounds(400, 300, 10, 800, 600) -> "PLAYING"
     """
     # TODO: replace this stub with your implementation
-    return "PLAYING"
-
+    if ball_x - radius < 0 : 
+    
+        return "OUT_LEFT"
+    
+    elif ball_x + radius > screen_w :
+        return "OUT_RIGHT"
+    
+    elif ball_y - radius < 0 :
+        return "OUT_TOP"
+    
+    elif ball_y + radius > screen_h:
+        return "OUT_BOTTOM"
+    
+    else:
+        return "PLAYING"
 
 def clamp_paddle_movement(current_y, target_y, max_speed, screen_h, paddle_h):
     """
@@ -94,6 +126,8 @@ def clamp_paddle_movement(current_y, target_y, max_speed, screen_h, paddle_h):
 
 
 def get_quadrant_occupancy(ball_x, ball_y, screen_w, screen_h):
+    ball_x,ball_y = float(ball_x),float(ball_y)
+    screen_w,screen_h = int(screen_w),int(screen_h)
     """
     Return which quadrant of the screen the ball currently occupies.
 
@@ -145,8 +179,17 @@ def shorten_player_name(full_name):
     shorten_player_name("alice")         -> "A"
     """
     # TODO: replace this stub with your implementation
-    return ""
-
+    nickname = full_name.split(' ')
+    nicks = ''
+    second = ''
+    for i in range(len(nickname)):
+        if i == 0:
+            first = nickname[i][0]
+        if i == 1:
+            second = nickname[i][0]
+            
+    nicks = first.upper() + second.upper()
+    return nicks
 
 def check_username_availability(username, database_list):
     """
@@ -168,6 +211,10 @@ def check_username_availability(username, database_list):
     check_username_availability("Alice", ["ADMIN", "TEST"]) -> False
     """
     # TODO: replace this stub with your implementation
+    username = username.upper()
+    for i in range(len(database_list)):
+        if database_list[i].upper() == username:
+            return True  
     return False
 
 
@@ -197,8 +244,9 @@ def validate_name_constraints(user_input):
     validate_name_constraints("Alice1")  -> False  (contains digit)
     """
     # TODO: replace this stub with your implementation
-    return True
-
+    if len(user_input) < 2 and len(user_input) > 16:
+        return False
+    return user_input.replace(" ", "").isalpha()
 
 def generate_seed_hash(player_name, score):
     """
@@ -225,7 +273,13 @@ def generate_seed_hash(player_name, score):
         ord('A')=65, ord('B')=66 -> sum=131 -> 131*10=1310 -> "1310"
     """
     # TODO: replace this stub with your implementation
-    return "0"
+    sum = 0
+    for i in player_name:
+        char = ord(i)
+        sum += char
+    ans = sum * score
+    ans = str(ans)
+    return ans 
 
 
 def find_longest_volley(game_history):
@@ -247,8 +301,17 @@ def find_longest_volley(game_history):
     find_longest_volley(["MISS", "MISS"])                       -> 0
     """
     # TODO: replace this stub with your implementation
-    return 0
+    count = 0
+    longest = 0 
+    for event in game_history:
+        if event == "HIT" or event == "WALL":
+            count += 1
+            if count > longest:
+                longest = count
+        else:
+            count = 0
 
+    return longest
 
 def calculate_weighted_score(score_events):
     """
@@ -274,9 +337,12 @@ def calculate_weighted_score(score_events):
         -> 10*0 + 10*1 + 5*2 = 0 + 10 + 10 = 20
     """
     # TODO: replace this stub with your implementation
-    return 0
-
-
+    sum = 0
+    for i in range(len(score_events)):
+        product = score_events[i] * i
+        sum += product
+        
+    return sum
 def determine_winning_player(leaderboard):
     """
     Find the best player in a leaderboard dictionary.
@@ -302,7 +368,26 @@ def determine_winning_player(leaderboard):
     # TODO: replace this stub with your implementation
     if len(leaderboard) == 0:
         return None
-    return next(iter(leaderboard))
+
+    highest = -1
+    best_misses = 0
+    winner = None
+
+    for player in leaderboard:
+        score = leaderboard[player]["score"]
+        misses = leaderboard[player]["misses"]
+
+        if score > highest:
+            highest = score
+            best_misses = misses
+            winner = player
+
+        elif score == highest:
+            if misses < best_misses:
+                best_misses = misses
+                winner = player
+
+    return winner
 
 
 def calculate_game_analytics(performance_log):
